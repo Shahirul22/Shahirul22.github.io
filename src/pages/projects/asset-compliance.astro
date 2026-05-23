@@ -1,0 +1,131 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectHeader from '../../components/ProjectHeader.astro';
+import { projects } from '../../lib/data';
+const p = projects.find((x) => x.slug === 'asset-compliance')!;
+
+const stages = [
+  { n: 1, status: 'SUBMISSION', who: 'Case Officer' },
+  { n: 2, status: 'REVIEW', who: 'Reviewing Officer' },
+  { n: 3, status: 'VERIFICATION', who: 'Verification Officer' },
+  { n: 4, status: 'SPECIALIST CHECK', who: 'Specialist Reviewer (conditional)' },
+  { n: 5, status: 'APPROVAL', who: 'Approval Officer' },
+  { n: 6, status: 'CLOSURE', who: 'Finance / Closure Officer' },
+];
+
+const features = [
+  {
+    title: 'Case records',
+    body: 'Officers create case forms with full item inventory. Multiple action types with their own costing rules. Physical assets and live items tracked separately, with owner details, location data, and media attachments per record.',
+  },
+  {
+    title: 'Department-level data isolation',
+    body: 'Two visibility tiers control what users see: ALL lets a user see records across departments; DEPARTMENT scopes them to their own. Enforced at the query layer — not just the UI.',
+  },
+  {
+    title: 'RBAC (Spatie)',
+    body: 'Six built-in roles. Per-stage workflow gates, user-management CRUD, and navigation visibility. Admins reassign permissions to roles at runtime — no deployment needed. Permission checks run at route middleware and controller layers; first-time users are forced through password change.',
+  },
+  {
+    title: 'Reports & PDF export',
+    body: 'Item lists, department statistics, search, and per-role permission sheets — all exportable as PDF via Laravel DomPDF.',
+  },
+  {
+    title: 'Audit trail',
+    body: 'Every change to a key model is logged via owen-it/laravel-auditing — who changed it, when, and the old/new values. The audit viewer is gated behind its own permission.',
+  },
+  {
+    title: 'Legacy database integration',
+    body: 'The client had an existing enforcement database on Oracle. Rather than migrating, the system connects directly via OCI8 as a secondary DB connection — pulling what it needs without touching the legacy schema.',
+  },
+  {
+    title: 'Monitoring',
+    body: 'Laravel pulse handles real-time health monitoring; Laravel Log Viewer gives admins a web interface for browsing logs. Both are permission-gated.',
+  },
+];
+
+const roles = ['Super Admin', 'Case Officer', 'Storage Reviewer', 'Review Admin', 'Specialist Admin', 'Department Officer'];
+---
+<Base title={`${p.title} — Case study`}>
+  <ProjectHeader title={p.title} tagline={p.tagline} status={p.status} stack={p.stack} metrics={p.metrics} />
+
+  <section class="container-prose mt-4">
+    <div class="card reveal">
+      <p class="section-eyebrow">// overview</p>
+      <h2 class="text-2xl font-bold mt-2">What it is</h2>
+      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
+        <strong class="text-ink-900 dark:text-ink-50">Asset Compliance Manager</strong> is a multi-stage approval and asset tracking system built for a government
+        client. Officers use it to log assets in the field, route them through a
+        multi-department approval chain, and eventually generate closure and audit reports. Two divisions use it:
+        <span class="text-accent">operations</span> and <span class="text-accent">specialist review</span> (certain cases require specialist sign-off).
+      </p>
+      <p class="mt-3 text-sm text-ink-500 dark:text-ink-400 italic">
+        No live URL or repo — the client is a government agency, so deployment is private.
+      </p>
+    </div>
+  </section>
+
+  <!-- Workflow -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// workflow</p>
+      <h2 class="text-2xl font-bold mt-2">Six-stage approval workflow</h2>
+      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+        Each form moves through six stages. Key design decision: users only see forms at their own stage. No skipping,
+        no peeking at another department's queue unless they have explicit cross-department access.
+      </p>
+    </div>
+    <div class="mt-8 grid md:grid-cols-3 gap-4">
+      {stages.map((s, i) => (
+        <div class="card reveal relative" style={`transition-delay:${i * 80}ms`}>
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-lg bg-accent/15 text-accent font-mono font-bold flex items-center justify-center">{s.n}</span>
+            <div>
+              <div class="font-mono text-xs text-accent">STAGE {s.n}</div>
+              <div class="font-bold">{s.status}</div>
+            </div>
+          </div>
+          <p class="mt-3 text-sm text-ink-600 dark:text-ink-400">{s.who}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Roles -->
+  <section class="container-prose mt-10">
+    <div class="card reveal">
+      <p class="section-eyebrow">// RBAC roles</p>
+      <h2 class="text-2xl font-bold mt-2">Six built-in roles</h2>
+      <div class="mt-4 grid sm:grid-cols-2 md:grid-cols-3 gap-2 font-mono text-sm">
+        {roles.map((r) => (
+          <div class="px-3 py-2 rounded-lg border border-ink-200 dark:border-ink-800 bg-ink-50/60 dark:bg-ink-900/60">
+            <span class="text-accent">›</span> {r}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// core features</p>
+      <h2 class="text-2xl font-bold mt-2">How it's built</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 gap-4">
+      {features.map((f, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{f.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{f.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-prose mt-14">
+    <div class="flex flex-wrap justify-between gap-3">
+      <a href="/projects/" class="btn-ghost">← All projects</a>
+      <a href="/projects/hr-management-suite/" class="btn-primary">Next: HR Management Suite →</a>
+    </div>
+  </section>
+</Base>

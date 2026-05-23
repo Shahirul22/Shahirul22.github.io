@@ -1,0 +1,16 @@
+---
+import { site } from '../lib/site';
+const year = new Date().getFullYear();
+---
+<footer class="mt-24 border-t border-ink-200/60 dark:border-ink-800/60">
+  <div class="container-prose py-10 flex flex-col md:flex-row items-center justify-between gap-4">
+    <p class="text-sm text-ink-500 dark:text-ink-400">
+      © {year} {site.name}. Built with <a class="text-accent hover:underline" href="https://astro.build" target="_blank" rel="noreferrer">Astro</a>, React & Tailwind.
+    </p>
+    <div class="flex items-center gap-4 text-sm text-ink-500 dark:text-ink-400">
+      <a href={`mailto:${site.email}`} class="hover:text-accent">{site.email}</a>
+      <span class="text-ink-300 dark:text-ink-700">|</span>
+      <a href={site.github} target="_blank" rel="noreferrer" class="hover:text-accent">GitHub</a>
+    </div>
+  </div>
+</footer>

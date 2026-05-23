@@ -1,0 +1,19 @@
+---
+import TypingHero from './TypingHero.tsx';
+---
+<div class="terminal max-w-2xl mx-auto reveal">
+  <div class="terminal-header">
+    <span class="terminal-dot bg-terminal-red"></span>
+    <span class="terminal-dot bg-terminal-amber"></span>
+    <span class="terminal-dot bg-terminal-green"></span>
+    <span class="ml-2 font-mono text-xs text-ink-500 dark:text-ink-400">~/shahirul — zsh</span>
+  </div>
+  <div class="p-5 font-mono text-sm leading-relaxed">
+    <p><span class="text-terminal-green">➜</span> <span class="text-accent">~</span> whoami</p>
+    <p class="text-ink-700 dark:text-ink-200">shahirul-amin</p>
+    <p class="mt-2"><span class="text-terminal-green">➜</span> <span class="text-accent">~</span> cat ./role.txt</p>
+    <p><TypingHero client:load /></p>
+    <p class="mt-2"><span class="text-terminal-green">➜</span> <span class="text-accent">~</span> ls -la ~/stack/</p>
+    <pre class="text-ink-700 dark:text-ink-300 whitespace-pre-wrap">drwxr-xr-x  laravel  react  postgres  docker  ...</pre>
+  </div>
+</div>

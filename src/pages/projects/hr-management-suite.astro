@@ -1,0 +1,150 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectHeader from '../../components/ProjectHeader.astro';
+import { projects } from '../../lib/data';
+const p = projects.find((x) => x.slug === 'hr-management-suite')!;
+
+const portals = [
+  { name: 'Admin Portal (HR Management)', purpose: 'HR administration, RBAC, workflow approvals', users: 'Admin / HR officers' },
+  { name: 'Staff Self-Service Portal', purpose: 'Self-service leave, overseas travel, payslips', users: 'All staff & council members' },
+];
+
+const modules = [
+  { name: 'Personnel management', body: 'Staff master records, posting/position assignments, supervisor tracking, and organisational reference data (departments, salary grades, allowances, classification schemes).' },
+  { name: 'Leave management', body: 'Balance entry, application and cancellation workflows. Separate flows for permanent staff, contract staff, and HR admin roles. Leave reports and staff enquiry included.' },
+  { name: 'Overseas travel', body: 'Travel applications with a full approval chain. Supports post-approval amendments, cancellations, and document reprints.' },
+  { name: 'Form management', body: 'Manual form entry, upload, and configuration of application requirements.' },
+  { name: 'Administration', body: 'User and role management, portal access control, session-timeout configuration, transaction log viewer, and announcement management for internal/external notices.' },
+];
+
+const rbacLayers = [
+  { title: 'Role-based', body: 'Permissions assigned to user categories, scoped to module + menu + action.' },
+  { title: 'User-specific', body: 'Per-user overrides that take precedence over role assignments.' },
+  { title: 'Super admin bypass', body: 'One designated account skips all checks.' },
+  { title: 'Department tenancy', body: 'Restricts which department\'s data a user can see, regardless of menu permissions.' },
+];
+
+const decisions = [
+  { title: 'Strict layered architecture', body: 'Controller → FormRequest → Service → Repository → Model. No direct DB queries in controllers, no business logic leaking into the wrong layer.' },
+  { title: 'Domain-specific naming conventions', body: 'Variable names, route names, and UI text follow the client\'s regulatory naming standards — ensuring consistency with existing organisational terminology.' },
+  { title: 'Dual-portal, single database', body: 'Admin and Staff portals are separate Laravel installs sharing the same DB tables. Separate authentication mechanisms, separate themes, no duplicated data.' },
+  { title: 'Custom Select2 component', body: 'A Blade component wraps every dropdown — auto-init, optional AJAX search, Bootstrap 5 theming. No per-page JS init required.' },
+  { title: 'Runtime session timeout', body: 'Admins configure session lifetime via the database. No .env change or redeployment required.' },
+];
+---
+<Base title={`${p.title} — Case study`}>
+  <ProjectHeader title={p.title} tagline={p.tagline} status={p.status} stack={p.stack} metrics={p.metrics} />
+
+  <section class="container-prose mt-4">
+    <div class="card reveal">
+      <p class="section-eyebrow">// overview</p>
+      <h2 class="text-2xl font-bold mt-2">Government HR, two portals, one database</h2>
+      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
+        HR Management Suite is a government HR and administration system I built for a local government authority.
+        It runs as <strong class="text-ink-900 dark:text-ink-50">two independent Laravel portals sharing one MySQL database</strong> —
+        an admin portal for HR officers and a staff self-service portal for employees and council members.
+      </p>
+      <p class="mt-3 text-sm text-ink-500 dark:text-ink-400 italic">
+        Private repo / private deployment — government client.
+      </p>
+    </div>
+  </section>
+
+  <!-- Portals -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// architecture</p>
+      <h2 class="text-2xl font-bold mt-2">Two portals, shared DB</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 gap-4">
+      {portals.map((p, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 100}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{p.name}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300">{p.purpose}</p>
+          <p class="mt-3 font-mono text-xs text-accent">↳ {p.users}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Modules -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// modules</p>
+      <h2 class="text-2xl font-bold mt-2">Functional modules</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {modules.map((m, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{m.name}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{m.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- RBAC -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// RBAC</p>
+      <h2 class="text-2xl font-bold mt-2">Fully custom RBAC, four layers</h2>
+      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+        Built from scratch on the given DB schema with additional tables. Permissions are scoped to module + menu pairs —
+        a user can have <code class="font-mono text-accent">edit</code> on one menu item but only
+        <code class="font-mono text-accent">view</code> on another in the same module.
+      </p>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 gap-4">
+      {rbacLayers.map((l, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-accent/15 text-accent font-mono flex items-center justify-center">{i + 1}</span>
+            <h3 class="font-bold">{l.title}</h3>
+          </div>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300">{l.body}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-6 grid md:grid-cols-3 gap-4">
+      <div class="card reveal">
+        <h3 class="font-mono text-sm text-ink-500 dark:text-ink-400">menu_system</h3>
+        <p class="mt-2 text-3xl font-bold text-accent">50</p>
+        <p class="text-sm text-ink-600 dark:text-ink-300 mt-1">menu items across 4 active modules, backed by seeded DB records.</p>
+      </div>
+      <div class="card reveal">
+        <h3 class="font-mono text-sm text-ink-500 dark:text-ink-400">cache</h3>
+        <p class="mt-2 text-3xl font-bold text-accent">1h</p>
+        <p class="text-sm text-ink-600 dark:text-ink-300 mt-1">per-user TTL. Auto-cleared on permission/role change.</p>
+      </div>
+      <div class="card reveal">
+        <h3 class="font-mono text-sm text-ink-500 dark:text-ink-400">enforcement</h3>
+        <p class="mt-2 text-3xl font-bold text-accent">route</p>
+        <p class="text-sm text-ink-600 dark:text-ink-300 mt-1">Permission middleware declared at the routing layer, not inside controllers.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Decisions -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// engineering decisions</p>
+      <h2 class="text-2xl font-bold mt-2">Choices worth noting</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 gap-4">
+      {decisions.map((d, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{d.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{d.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-prose mt-14">
+    <div class="flex flex-wrap justify-between gap-3">
+      <a href="/projects/asset-compliance/" class="btn-ghost">← Previous: Asset Compliance Manager</a>
+      <a href="/projects/" class="btn-primary">All projects →</a>
+    </div>
+  </section>
+</Base>
