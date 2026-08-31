@@ -16,6 +16,7 @@ export const skills: Skill[] = [
   { name: 'C++', tier: 'familiar', category: 'Backend' },
   { name: 'Java', tier: 'familiar', category: 'Backend' },
   { name: 'Python', tier: 'familiar', category: 'Backend' },
+  { name: 'NestJS / TypeScript', tier: 'familiar', category: 'Backend' },
 
   // Frontend — Proficient (junior-to-mid)
   { name: 'JavaScript', tier: 'proficient', category: 'Frontend' },
@@ -41,6 +42,7 @@ export const skills: Skill[] = [
   { name: 'Laravel Pest', tier: 'proficient', category: 'Tools' },
   { name: 'Laravel Herd', tier: 'proficient', category: 'Tools' },
   { name: 'AI-assisted dev', tier: 'proficient', category: 'Tools' },
+  { name: 'LLM agent tooling (Vercel AI SDK)', tier: 'proficient', category: 'Tools' },
 ];
 
 // Tier display config
@@ -75,13 +77,14 @@ export const experiences: Experience[] = [
     period: 'Apr 2025 — Present',
     location: 'Penang, Malaysia',
     bullets: [
-      'Lead backend development on Eventilla — migrating a live events platform from a legacy PHP framework to Laravel + React.',
-      'Optimised a critical DB query — page load 20s → 3s (~85% reduction).',
+      'Building an AI-assisted production monitoring platform — deterministic pipelines paired with bounded LLM agents that read real source code to diagnose and propose fixes for production issues.',
+      'Previously led backend development on Eventilla — migrated a live events platform from a legacy PHP framework to Laravel + React.',
+      'Optimised a critical DB query on Eventilla — page load 20s → 3s (~85% reduction).',
       'Implemented event-management APIs and rebuilt a lost RBAC system from an early migration phase.',
       'Built an internal CLI tool for automated file/folder mapping and config deployment across projects.',
       'Containerised dev environments with Docker. Practising AI-assisted development workflows.',
     ],
-    tags: ['Laravel', 'React', 'PostgreSQL', 'Docker', 'CLI'],
+    tags: ['NestJS', 'TypeScript', 'Laravel', 'React', 'PostgreSQL', 'Docker', 'CLI'],
   },
   {
     company: 'Majlis Bandaraya Pulau Pinang (MBPP)',
@@ -113,7 +116,7 @@ export type ProjectMeta = {
   title: string;
   tagline: string;
   stack: string[];
-  status: 'Live (private)' | 'Live' | 'Maintenance' | 'Archived';
+  status: 'Live (private)' | 'Live' | 'In development' | 'Maintenance' | 'Archived';
   highlight: string;
   metrics?: { label: string; value: string }[];
   category: string;
@@ -151,10 +154,10 @@ export const projects: ProjectMeta[] = [
   {
     slug: 'eventilla',
     title: 'Eventilla Platform Migration',
-    tagline: 'Migrating a live events management platform from legacy PHP MVC to Laravel + React.',
+    tagline: 'Migrated a live events management platform from legacy PHP MVC to Laravel + React.',
     stack: ['Laravel', 'React', 'PostgreSQL', 'Docker'],
     status: 'Live',
-    highlight: 'Reduced a critical page load from ~20s to ~3s by optimising a single hot query path.',
+    highlight: 'Reduced a critical page load from ~20s to ~3s by optimising a single hot query path, while the legacy system stayed live in production throughout.',
     metrics: [
       { label: 'Load time', value: '20s → 3s' },
     ],
@@ -168,5 +171,19 @@ export const projects: ProjectMeta[] = [
     status: 'Live (private)',
     highlight: 'Developers edit a local config file to define file/folder mappings, then run a single command to deploy them across any target project.',
     category: 'Internal tooling',
+  },
+  {
+    slug: 'solenovo-ai-platform',
+    title: 'Solenovo AI Operations Platform',
+    tagline: 'AI-assisted production monitoring platform — deterministic pipelines paired with bounded LLM agents that read real source code to diagnose and propose fixes for production issues.',
+    stack: ['NestJS', 'TypeScript', 'Vercel AI SDK', 'PostgreSQL', 'Docker Compose', 'Grafana / Loki'],
+    status: 'In development',
+    highlight: 'Ports & adapters architecture where a deterministic pipeline hands only genuinely novel issues to a cost- and scope-budgeted, read-only agent — output is always AI-advisory, never auto-applied.',
+    metrics: [
+      { label: 'Started', value: 'Jul 2026' },
+      { label: 'Commits', value: '100+' },
+      { label: 'Release', value: 'v0.5.0' },
+    ],
+    category: 'AI / Platform Engineering',
   },
 ];

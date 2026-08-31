@@ -2,7 +2,7 @@
 import type { ProjectMeta } from '../lib/data';
 interface Props { project: ProjectMeta; index?: number }
 const { project, index = 0 } = Astro.props;
-const hasDetail = ['asset-compliance', 'hr-management-suite'].includes(project.slug);
+const hasDetail = ['asset-compliance', 'hr-management-suite', 'eventilla', 'solenovo-ai-platform', 'devtooling'].includes(project.slug);
 const href = hasDetail ? `/projects/${project.slug}/` : `/projects/`;
 ---
 <a href={href} class="card group block reveal" style={`transition-delay:${index * 100}ms`}>

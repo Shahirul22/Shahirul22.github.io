@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectHeader from '../../components/ProjectHeader.astro';
+import { projects } from '../../lib/data';
+const p = projects.find((x) => x.slug === 'devtooling')!;
+
+const flow = [
+  { n: 1, title: 'Define', body: 'A developer edits a local config file, declaring which files or folders should map from a source location to one or more target projects.' },
+  { n: 2, title: 'Run', body: 'A single CLI command reads the config and executes every mapping in it.' },
+  { n: 3, title: 'Deploy', body: 'Files/folders land in the target project(s) exactly as declared — no manual copy-pasting or remembering which project needs what.' },
+];
+---
+<Base title={`${p.title} — Case study`}>
+  <ProjectHeader title={p.title} tagline={p.tagline} status={p.status} stack={p.stack} metrics={p.metrics} />
+
+  <section class="container-prose mt-4">
+    <div class="card reveal">
+      <p class="section-eyebrow">// overview</p>
+      <h2 class="text-2xl font-bold mt-2">Removing repetitive setup, not just documenting it</h2>
+      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
+        An in-house CLI tool built to stop manually re-copying the same boilerplate files and config across projects at
+        Nindatech. Instead of a checklist to follow by hand, mappings are declared once in a config file and applied with
+        a single command.
+      </p>
+      <p class="mt-3 text-sm text-ink-500 dark:text-ink-400 italic">
+        Internal tool — no public repo or live URL.
+      </p>
+    </div>
+  </section>
+
+  <!-- Flow -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// how it works</p>
+      <h2 class="text-2xl font-bold mt-2">Define once, run anywhere</h2>
+    </div>
+    <div class="mt-8 grid md:grid-cols-3 gap-4">
+      {flow.map((s, i) => (
+        <div class="card reveal relative" style={`transition-delay:${i * 80}ms`}>
+          <div class="flex items-center gap-3">
+            <span class="w-9 h-9 rounded-lg bg-accent/15 text-accent font-mono font-bold flex items-center justify-center">{s.n}</span>
+            <div class="font-bold">{s.title}</div>
+          </div>
+          <p class="mt-3 text-sm text-ink-600 dark:text-ink-400">{s.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-prose mt-14">
+    <div class="flex flex-wrap justify-between gap-3">
+      <a href="/projects/solenovo-ai-platform/" class="btn-ghost">← Previous: Solenovo AI Operations Platform</a>
+      <a href="/projects/" class="btn-primary">All projects →</a>
+    </div>
+  </section>
+</Base>

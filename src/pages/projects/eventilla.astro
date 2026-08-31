@@ -1,0 +1,84 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectHeader from '../../components/ProjectHeader.astro';
+import { projects } from '../../lib/data';
+const p = projects.find((x) => x.slug === 'eventilla')!;
+
+const constraints = [
+  { title: 'No documentation', body: 'The legacy framework (circa 2011) had no written docs — behaviour had to be reverse-engineered from the code itself before anything could move.' },
+  { title: 'Zero downtime', body: 'The legacy system stayed live and serving real customer traffic for the entire migration, so nothing could break in the switchover.' },
+  { title: 'Sole backend owner', body: 'Backend migration work was owned solo, from architecture decisions through implementation.' },
+];
+
+const work = [
+  { title: 'Query optimisation', body: 'One page load went from ~20s to ~3s — an ~85% reduction — by rewriting the underlying hot query path rather than adding caching over the slow one.' },
+  { title: 'RBAC rebuild', body: 'An early phase of the migration had left the role-based access control incomplete. Rebuilt it against the new Laravel stack so permissions matched the legacy system\'s behaviour exactly.' },
+  { title: 'Event-management APIs', body: 'Implemented the REST APIs the new React frontend needed, replacing direct calls into the legacy PHP MVC layer.' },
+];
+---
+<Base title={`${p.title} — Case study`}>
+  <ProjectHeader title={p.title} tagline={p.tagline} status={p.status} stack={p.stack} metrics={p.metrics} />
+
+  <section class="container-prose mt-4">
+    <div class="card reveal">
+      <p class="section-eyebrow">// overview</p>
+      <h2 class="text-2xl font-bold mt-2">Migrating a live product without stopping it</h2>
+      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
+        <a class="text-accent hover:underline" href="https://eventilla.com" target="_blank" rel="noreferrer">Eventilla</a> is
+        a live events management SaaS platform. I led backend development on migrating it from an undocumented legacy PHP MVC
+        framework (circa 2011) to a modern <strong class="text-ink-900 dark:text-ink-50">Laravel + React</strong> stack,
+        with the legacy system continuing to serve production traffic throughout.
+      </p>
+      <p class="mt-3 text-sm text-ink-500 dark:text-ink-400 italic">
+        Public product, private repo. I've since moved on to other work at Nindatech — this covers the migration work as delivered.
+      </p>
+    </div>
+  </section>
+
+  <!-- Constraints -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// constraints</p>
+      <h2 class="text-2xl font-bold mt-2">What made it hard</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-3 gap-4">
+      {constraints.map((c, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{c.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{c.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Work -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// what I built</p>
+      <h2 class="text-2xl font-bold mt-2">Query fix, RBAC rebuild, new APIs</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-3 gap-4">
+      {work.map((w, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{w.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{w.body}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-6 grid sm:grid-cols-1 gap-4">
+      <div class="card reveal">
+        <h3 class="font-mono text-sm text-ink-500 dark:text-ink-400">page load</h3>
+        <p class="mt-2 text-3xl font-bold text-accent">20s → 3s</p>
+        <p class="text-sm text-ink-600 dark:text-ink-300 mt-1">~85% reduction on a critical hot path, fixed at the query level rather than papered over with caching.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-prose mt-14">
+    <div class="flex flex-wrap justify-between gap-3">
+      <a href="/projects/hr-management-suite/" class="btn-ghost">← Previous: HR Management Suite</a>
+      <a href="/projects/solenovo-ai-platform/" class="btn-primary">Next: Solenovo AI Operations Platform →</a>
+    </div>
+  </section>
+</Base>

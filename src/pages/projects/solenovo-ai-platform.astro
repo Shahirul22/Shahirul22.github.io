@@ -1,0 +1,163 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectHeader from '../../components/ProjectHeader.astro';
+import { projects } from '../../lib/data';
+const p = projects.find((x) => x.slug === 'solenovo-ai-platform')!;
+
+const adapters = [
+  { title: 'Log sources', body: 'Grafana/Loki in production, swapped for a local mock stack in dev — same port, different adapter.' },
+  { title: 'Issue trackers', body: 'JIRA in production, a JIRA sandbox locally, so filing logic is exercised without touching the real board.' },
+  { title: 'LLM providers', body: 'The agent runtime sits behind its own adapter boundary, so the underlying model is a config choice, not a rewrite.' },
+];
+
+const pipeline = [
+  { n: 1, title: 'Fetch', body: 'Pull raw log entries from the configured log source adapter.' },
+  { n: 2, title: 'Filter', body: 'Drop noise deterministically — no LLM involved yet.' },
+  { n: 3, title: 'Dedupe', body: 'Collapse repeats of the same underlying event.' },
+  { n: 4, title: 'Fingerprint', body: 'Identify which issues are genuinely novel versus already seen and tracked.' },
+  { n: 5, title: 'Agent diagnosis', body: 'Only novel issues reach the LLM agent, which reads the monitored product\'s real source via a tree-sitter codebase index to diagnose root cause and propose a fix.' },
+];
+
+const guardrails = [
+  { title: 'Read-only', body: 'The agent inspects a synced, sandboxed checkout of the monitored repo — it cannot write to it.' },
+  { title: 'Cost- and scope-budgeted', body: 'Every agent run has hard limits on spend and how much of the codebase it can traverse.' },
+  { title: 'AI-advisory only', body: 'Diagnoses and proposed fixes are filed for human review — nothing is auto-applied or auto-merged.' },
+];
+
+const orchestration = [
+  { title: 'Local stack', body: 'Docker Compose wires up Postgres, Grafana/Loki, a JIRA sandbox, and Vault for secrets — a full local mirror of production.' },
+  { title: 'Env switching', body: 'Scripts flip the same service between local mocks and real production systems, including cookie-based auth session management.' },
+  { title: 'Validated on real data', body: 'Features are proven against actual production Grafana/JIRA data before shipping, not just the local mocks.' },
+];
+
+const process = [
+  { title: 'PRD → planning → design', body: 'Each process starts as a written requirements doc, broken into a plan and a design before any implementation begins.' },
+  { title: 'Implementation → QA → integration', body: 'A V-model lifecycle: every design decision maps to a verification step, so QA isn\'t bolted on at the end.' },
+  { title: 'Machine-checkable acceptance criteria', body: 'Tasks and milestones are tracked as version-controlled Markdown with acceptance criteria that can be checked programmatically, not just eyeballed.' },
+];
+---
+<Base title={`${p.title} — Case study`}>
+  <ProjectHeader title={p.title} tagline={p.tagline} status={p.status} stack={p.stack} metrics={p.metrics} />
+
+  <section class="container-prose mt-4">
+    <div class="card reveal">
+      <p class="section-eyebrow">// overview</p>
+      <h2 class="text-2xl font-bold mt-2">A template for AI-assisted operational engineering</h2>
+      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
+        A production-grade backend platform built for <strong class="text-ink-900 dark:text-ink-50">Solenovo</strong> that pairs deterministic
+        data pipelines with bounded, tool-using LLM agents to automate operational engineering work. The first process built on it is
+        production log monitoring, but the architecture is deliberately built as a reusable template so further AI-assisted processes
+        can be added over time without a redesign.
+      </p>
+      <p class="mt-3 text-sm text-ink-500 dark:text-ink-400 italic">
+        Private repo / internal deployment — actively under development (~100 commits since July 2026), so scope keeps expanding.
+      </p>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// architecture</p>
+      <h2 class="text-2xl font-bold mt-2">Ports & adapters, swappable infrastructure</h2>
+      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+        Built as a NestJS + TypeScript service around a hexagonal design — the core domain logic never talks to a concrete log source,
+        issue tracker, or LLM provider directly, only through a port.
+      </p>
+    </div>
+    <div class="mt-6 grid md:grid-cols-3 gap-4">
+      {adapters.map((a, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{a.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{a.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Pipeline -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// pipeline</p>
+      <h2 class="text-2xl font-bold mt-2">Deterministic pipeline → bounded AI agent</h2>
+      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+        Most of the pipeline is plain deterministic code. The LLM only gets involved once cheap, predictable steps have already
+        narrowed the problem down to something genuinely worth its attention.
+      </p>
+    </div>
+    <div class="mt-8 grid md:grid-cols-3 lg:grid-cols-5 gap-4">
+      {pipeline.map((s, i) => (
+        <div class="card reveal relative" style={`transition-delay:${i * 70}ms`}>
+          <div class="flex items-center gap-3">
+            <span class="w-9 h-9 rounded-lg bg-accent/15 text-accent font-mono font-bold flex items-center justify-center">{s.n}</span>
+            <div class="font-mono text-xs text-accent uppercase tracking-wider">{s.title}</div>
+          </div>
+          <p class="mt-3 text-sm text-ink-600 dark:text-ink-400">{s.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Guardrails -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// guardrails</p>
+      <h2 class="text-2xl font-bold mt-2">Bounded by design, not by policy</h2>
+      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+        The agent runtime is built on the Vercel AI SDK, operating against a synced, sandboxed checkout of the monitored product's
+        own repository — never the live one.
+      </p>
+    </div>
+    <div class="mt-6 grid md:grid-cols-3 gap-4">
+      {guardrails.map((g, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{g.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{g.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Orchestration -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// local orchestration</p>
+      <h2 class="text-2xl font-bold mt-2">A full local mirror of production</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-3 gap-4">
+      {orchestration.map((o, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{o.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{o.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// engineering process</p>
+      <h2 class="text-2xl font-bold mt-2">Shipped through a rigorous lifecycle</h2>
+      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+        Every feature moves through the same lifecycle and ships as a versioned release with a structured changelog —
+        currently at <span class="text-accent font-mono">v0.5.0</span>.
+      </p>
+    </div>
+    <div class="mt-6 grid md:grid-cols-3 gap-4">
+      {process.map((s, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{s.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{s.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-prose mt-14">
+    <div class="flex flex-wrap justify-between gap-3">
+      <a href="/projects/eventilla/" class="btn-ghost">← Previous: Eventilla Platform Migration</a>
+      <a href="/projects/devtooling/" class="btn-primary">Next: Internal Developer Tooling →</a>
+    </div>
+  </section>
+</Base>
