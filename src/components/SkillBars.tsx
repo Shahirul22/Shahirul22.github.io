@@ -1,86 +1,78 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { skills, tierConfig, type Skill, type SkillTier } from '../lib/data';
 
-// Deterministic pseudo-random from string seed
-function hashStr(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
-}
+/*
+ * Renders the skill set as a `git log --graph --all` commit graph.
+ * Lanes = categories (branches). Nodes = skills (commits).
+ * Core-tier skills merge into a "main" trunk lane on the left, since
+ * they're the daily-driver stack everything else branches from.
+ */
 
-const TIER_STYLE: Record<SkillTier, { r: number; fill: string; stroke: string; glow: string; pulse: boolean }> = {
-  core: {
-    r: 22,
-    fill: 'rgba(34, 211, 238, 0.25)',
-    stroke: '#22d3ee',
-    glow: 'rgba(34, 211, 238, 0.5)',
-    pulse: true,
-  },
-  proficient: {
-    r: 16,
-    fill: 'rgba(74, 222, 128, 0.2)',
-    stroke: '#4ade80',
-    glow: 'rgba(74, 222, 128, 0.35)',
-    pulse: false,
-  },
-  familiar: {
-    r: 11,
-    fill: 'rgba(148, 163, 184, 0.15)',
-    stroke: '#94a3b8',
-    glow: 'rgba(148, 163, 184, 0.2)',
-    pulse: false,
-  },
+const CATEGORY_ORDER = ['Backend', 'Database', 'DevOps', 'Frontend', 'Tools'] as const;
+
+const CATEGORY_COLOR: Record<string, string> = {
+  Backend: '#22d3ee', // accent
+  Database: '#4ade80', // terminal-green
+  DevOps: '#fbbf24', // terminal-amber
+  Frontend: '#f87171', // terminal-red
+  Tools: '#94a3b8', // ink-400
 };
 
-const CATEGORY_CLUSTERS: Record<string, { cx: number; cy: number }> = {
-  Backend:  { cx: 0.25, cy: 0.30 },
-  Frontend: { cx: 0.75, cy: 0.28 },
-  Database: { cx: 0.20, cy: 0.72 },
-  DevOps:   { cx: 0.52, cy: 0.68 },
-  Tools:    { cx: 0.80, cy: 0.72 },
+const MAIN_COLOR = '#22d3ee';
+
+const TIER_ORDER: Record<SkillTier, number> = { core: 0, proficient: 1, familiar: 2 };
+
+type Row = {
+  skill: Skill;
+  laneX: number;
+  mainX: number | null; // set when tier === core, node also drawn on trunk
+  y: number;
+  color: string;
 };
 
-type NodeData = Skill & { x: number; y: number; style: typeof TIER_STYLE.core };
-
-function layoutNodes(w: number, h: number): NodeData[] {
-  const pad = 40;
-  const usableW = w - pad * 2;
-  const usableH = h - pad * 2;
-
-  return skills.map((s) => {
-    const cluster = CATEGORY_CLUSTERS[s.category] || { cx: 0.5, cy: 0.5 };
-    const hash = hashStr(s.name);
-    const angle = ((hash % 360) / 360) * Math.PI * 2;
-    const spread = 35 + (hash % 40);
-    const x = pad + cluster.cx * usableW + Math.cos(angle) * spread;
-    const y = pad + cluster.cy * usableH + Math.sin(angle) * spread;
-    return { ...s, x, y, style: TIER_STYLE[s.tier] };
+function buildRows(width: number, rowHeight: number): { rows: Row[]; laneXs: Record<string, number>; mainX: number; height: number } {
+  const lanePad = 28;
+  const laneGap = (width - lanePad * 2) / (CATEGORY_ORDER.length + 1); // +1 slot reserved for main trunk spacing
+  const mainX = lanePad + laneGap * 0.6;
+  const laneXs: Record<string, number> = {};
+  CATEGORY_ORDER.forEach((cat, i) => {
+    laneXs[cat] = mainX + laneGap * (i + 1);
   });
+
+  const ordered = [...skills].sort((a, b) => {
+    const ci = CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category);
+    if (ci !== 0) return ci;
+    return TIER_ORDER[a.tier] - TIER_ORDER[b.tier];
+  });
+
+  const topPad = 30;
+  const rows: Row[] = ordered.map((skill, i) => ({
+    skill,
+    laneX: laneXs[skill.category],
+    mainX: skill.tier === 'core' ? mainX : null,
+    y: topPad + i * rowHeight,
+    color: CATEGORY_COLOR[skill.category] || '#94a3b8',
+  }));
+
+  return { rows, laneXs, mainX, height: topPad + ordered.length * rowHeight + 20 };
 }
 
-function getEdges(nodes: NodeData[]): [number, number][] {
-  const edges: [number, number][] = [];
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      if (nodes[i].category === nodes[j].category) {
-        edges.push([i, j]);
-      }
-    }
-  }
-  return edges;
+function shortSha(name: string): string {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = ((h << 5) - h + name.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(16).slice(0, 7).padStart(7, '0');
 }
 
 export default function SkillGraph() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ w: 500, h: 400 });
+  const [width, setWidth] = useState(480);
   const [hovered, setHovered] = useState<number | null>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
     const ro = new ResizeObserver((entries) => {
-      const { width } = entries[0].contentRect;
-      setSize({ w: width, h: Math.max(340, width * 0.72) });
+      setWidth(entries[0].contentRect.width);
     });
     ro.observe(containerRef.current);
     return () => ro.disconnect();
@@ -90,185 +82,199 @@ export default function SkillGraph() {
     if (!containerRef.current) return;
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && setVisible(true)),
-      { threshold: 0.15 },
+      { threshold: 0.1 },
     );
     io.observe(containerRef.current);
     return () => io.disconnect();
   }, []);
 
-  const nodes = useMemo(() => layoutNodes(size.w, size.h), [size.w, size.h]);
-  const edges = useMemo(() => getEdges(nodes), [nodes]);
+  const rowHeight = 26;
+  const { rows, laneXs, mainX, height } = useMemo(
+    () => buildRows(width, rowHeight),
+    [width],
+  );
 
-  const hoveredNode = hovered !== null ? nodes[hovered] : null;
+  const labelStartX = width - 4; // labels drawn in HTML column instead, svg stays graph-only
+  const svgWidth = Math.min(width, 220);
+
+  const hoveredRow = hovered !== null ? rows[hovered] : null;
 
   return (
-    <div ref={containerRef} className="relative w-full select-none">
-      <svg
-        width={size.w}
-        height={size.h}
-        viewBox={`0 0 ${size.w} ${size.h}`}
-        className="block"
-      >
-        <defs>
-          <filter id="node-glow">
-            <feGaussianBlur stdDeviation="4" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
+    <div ref={containerRef} className="terminal overflow-hidden select-none">
+      <div className="terminal-header">
+        <span className="terminal-dot bg-terminal-red" />
+        <span className="terminal-dot bg-terminal-amber" />
+        <span className="terminal-dot bg-terminal-green" />
+        <span className="ml-2 font-mono text-xs text-ink-500 dark:text-ink-400">
+          git log --graph --all — shahirul@dev
+        </span>
+      </div>
 
-        {/* Edges */}
-        {edges.map(([a, b], i) => {
-          const na = nodes[a];
-          const nb = nodes[b];
-          const isActive = hovered === a || hovered === b;
-          return (
-            <line
-              key={`e-${i}`}
-              x1={na.x}
-              y1={na.y}
-              x2={nb.x}
-              y2={nb.y}
-              className="transition-all duration-500"
-              stroke={isActive ? na.style.stroke : 'currentColor'}
-              strokeWidth={isActive ? 1.5 : 0.6}
-              style={{
-                opacity: visible ? (isActive ? 0.7 : 0.15) : 0,
-                transition: `opacity 800ms ease ${i * 15}ms, stroke 300ms, stroke-width 300ms`,
-                color: 'var(--edge-color)',
-              }}
-            />
-          );
-        })}
-
-        {/* Nodes */}
-        {nodes.map((n, i) => {
-          const isHovered = hovered === i;
-          const r = isHovered ? n.style.r + 4 : n.style.r;
-          return (
-            <g
-              key={n.name}
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-              className="cursor-pointer"
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? 'none' : 'scale(0)',
-                transformOrigin: `${n.x}px ${n.y}px`,
-                transition: `opacity 600ms ease ${i * 50}ms, transform 600ms ease ${i * 50}ms`,
-              }}
-            >
-              {/* Glow ring */}
-              <circle
-                cx={n.x}
-                cy={n.y}
-                r={r + 4}
-                fill="none"
-                stroke={n.style.stroke}
-                strokeWidth={isHovered ? 1.5 : 0.5}
-                opacity={isHovered ? 0.5 : 0.15}
-                className="transition-all duration-300"
-              />
-              {/* Main circle */}
-              <circle
-                cx={n.x}
-                cy={n.y}
-                r={r}
-                fill={n.style.fill}
-                stroke={n.style.stroke}
-                strokeWidth={isHovered ? 2 : 1}
-                filter="url(#node-glow)"
-                className="transition-all duration-300"
-              >
-                {n.style.pulse && (
-                  <animate
-                    attributeName="r"
-                    values={`${n.style.r};${n.style.r + 2};${n.style.r}`}
-                    dur="3s"
-                    repeatCount="indefinite"
-                  />
-                )}
-              </circle>
-              {/* Label (always visible for core, on hover for others) */}
-              {(n.tier === 'core' || isHovered) && (
-                <text
-                  x={n.x}
-                  y={n.y + r + 14}
-                  textAnchor="middle"
-                  className="fill-ink-700 dark:fill-ink-200 text-[10px] font-mono pointer-events-none transition-opacity duration-300"
-                  style={{ opacity: visible ? 1 : 0 }}
-                >
-                  {n.name}
-                </text>
-              )}
-            </g>
-          );
-        })}
-
-        {/* Category labels */}
-        {Object.entries(CATEGORY_CLUSTERS).map(([cat, pos]) => (
-          <text
-            key={cat}
-            x={40 + pos.cx * (size.w - 80)}
-            y={20 + pos.cy * (size.h - 80) - 50}
-            textAnchor="middle"
-            className="fill-ink-300 dark:fill-ink-600 text-[9px] font-mono uppercase tracking-widest pointer-events-none"
-            style={{
-              opacity: visible ? 0.7 : 0,
-              transition: 'opacity 1s ease 300ms',
-            }}
+      <div className="p-3 sm:p-4 overflow-x-auto">
+        <div className="flex items-start gap-3" style={{ minWidth: 360 }}>
+          {/* Graph column */}
+          <svg
+            width={svgWidth}
+            height={height}
+            viewBox={`0 0 ${svgWidth} ${height}`}
+            className="flex-shrink-0"
           >
-            {cat}
-          </text>
-        ))}
-      </svg>
-
-      {/* CSS var for edge color that respects dark mode */}
-      <style>{`
-        :root { --edge-color: #cbd5e1; }
-        .dark { --edge-color: #334155; }
-      `}</style>
-
-      {/* Hover tooltip */}
-      {hoveredNode && (
-        <div
-          className="absolute pointer-events-none z-10 px-3 py-2 rounded-lg border
-            border-ink-200 dark:border-ink-700 bg-white/95 dark:bg-ink-900/95
-            backdrop-blur shadow-lg font-mono text-xs transition-opacity duration-150"
-          style={{
-            left: Math.min(hoveredNode.x, size.w - 140),
-            top: Math.max(hoveredNode.y - 50, 8),
-          }}
-        >
-          <div className="font-semibold text-ink-900 dark:text-ink-50">{hoveredNode.name}</div>
-          <div className="flex items-center gap-1.5 mt-1">
-            <span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: hoveredNode.style.stroke }}
+            {/* Main trunk line */}
+            <line
+              x1={mainX}
+              y1={8}
+              x2={mainX}
+              y2={height - 8}
+              stroke={MAIN_COLOR}
+              strokeWidth={1.5}
+              style={{ opacity: visible ? 0.5 : 0, transition: 'opacity 600ms ease' }}
             />
-            <span style={{ color: hoveredNode.style.stroke }}>
-              {tierConfig[hoveredNode.tier].label}
-            </span>
-            <span className="text-ink-400 dark:text-ink-500">·</span>
-            <span className="text-ink-500 dark:text-ink-400">{hoveredNode.category}</span>
+
+            {/* Category lane lines (drawn only across the span their commits occupy) */}
+            {CATEGORY_ORDER.map((cat) => {
+              const laneRows = rows.filter((r) => r.skill.category === cat);
+              if (laneRows.length === 0) return null;
+              const y0 = laneRows[0].y;
+              const y1 = laneRows[laneRows.length - 1].y;
+              return (
+                <line
+                  key={cat}
+                  x1={laneXs[cat]}
+                  y1={y0}
+                  x2={laneXs[cat]}
+                  y2={y1}
+                  stroke={CATEGORY_COLOR[cat]}
+                  strokeWidth={1.5}
+                  style={{ opacity: visible ? 0.35 : 0, transition: 'opacity 600ms ease' }}
+                />
+              );
+            })}
+
+            {/* Merge curves from lane into trunk for core commits */}
+            {rows.map((r, i) => {
+              if (r.mainX === null) return null;
+              const d = `M ${r.laneX} ${r.y} C ${(r.laneX + r.mainX) / 2} ${r.y}, ${(r.laneX + r.mainX) / 2} ${r.y}, ${r.mainX} ${r.y}`;
+              return (
+                <path
+                  key={`merge-${i}`}
+                  d={d}
+                  fill="none"
+                  stroke={r.color}
+                  strokeWidth={1.25}
+                  style={{
+                    opacity: visible ? 0.45 : 0,
+                    transition: `opacity 500ms ease ${i * 25}ms`,
+                  }}
+                />
+              );
+            })}
+
+            {/* Commit nodes */}
+            {rows.map((r, i) => {
+              const isHovered = hovered === i;
+              const isCore = r.skill.tier === 'core';
+              const isProficient = r.skill.tier === 'proficient';
+              const radius = isHovered ? 5.5 : 4;
+              return (
+                <g
+                  key={r.skill.name}
+                  onMouseEnter={() => setHovered(i)}
+                  onMouseLeave={() => setHovered(null)}
+                  className="cursor-pointer"
+                  style={{
+                    opacity: visible ? 1 : 0,
+                    transition: `opacity 400ms ease ${i * 20}ms`,
+                  }}
+                >
+                  {/* trunk node for core skills */}
+                  {r.mainX !== null && (
+                    <circle
+                      cx={r.mainX}
+                      cy={r.y}
+                      r={isHovered ? 4.5 : 3.5}
+                      fill={MAIN_COLOR}
+                      stroke={MAIN_COLOR}
+                    />
+                  )}
+                  {/* lane node */}
+                  <circle
+                    cx={r.laneX}
+                    cy={r.y}
+                    r={radius}
+                    fill={isCore || isProficient ? r.color : 'transparent'}
+                    stroke={r.color}
+                    strokeWidth={isHovered ? 2 : 1.5}
+                  />
+                  {/* invisible wide hit area for easier hover */}
+                  <rect x={0} y={r.y - rowHeight / 2} width={svgWidth} height={rowHeight} fill="transparent" />
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* Commit message column */}
+          <div className="flex-1 min-w-0" style={{ paddingTop: 30 - 7 }}>
+            {rows.map((r, i) => {
+              const isHovered = hovered === i;
+              return (
+                <div
+                  key={r.skill.name}
+                  onMouseEnter={() => setHovered(i)}
+                  onMouseLeave={() => setHovered(null)}
+                  className="flex items-baseline gap-2 font-mono text-xs sm:text-sm cursor-pointer rounded px-1.5 -mx-1.5 transition-colors"
+                  style={{
+                    height: rowHeight,
+                    opacity: visible ? 1 : 0,
+                    transition: `opacity 400ms ease ${i * 20}ms, background-color 150ms`,
+                    backgroundColor: isHovered ? 'var(--row-hover)' : 'transparent',
+                  }}
+                >
+                  <span className="text-ink-400 dark:text-ink-600 tabular-nums">{shortSha(r.skill.name)}</span>
+                  <span className={isHovered ? 'text-ink-900 dark:text-ink-50' : 'text-ink-700 dark:text-ink-300'}>
+                    {r.skill.name}
+                  </span>
+                  {r.skill.tier === 'core' && (
+                    <span className="text-[10px] text-accent border border-accent/30 rounded px-1 leading-4">
+                      main
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
-      )}
 
-      {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 mt-3 font-mono text-[10px] sm:text-xs text-ink-400 dark:text-ink-500">
-        {(['core', 'proficient', 'familiar'] as SkillTier[]).map((t) => (
-          <span key={t} className="flex items-center gap-1.5">
-            <span
-              className="w-2 h-2 rounded-full"
-              style={{ backgroundColor: TIER_STYLE[t].stroke, boxShadow: `0 0 4px ${TIER_STYLE[t].glow}` }}
-            />
-            {tierConfig[t].label}
-          </span>
-        ))}
+        {/* Legend / detail line */}
+        <div className="mt-3 pt-2 border-t border-ink-200/60 dark:border-ink-700/60 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-1 font-mono text-[10px] sm:text-xs text-ink-400 dark:text-ink-500">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {CATEGORY_ORDER.map((cat) => (
+              <span key={cat} className="flex items-center gap-1.5">
+                <span
+                  className="inline-block w-2 h-2 rounded-full"
+                  style={{ backgroundColor: CATEGORY_COLOR[cat] }}
+                />
+                {cat}
+              </span>
+            ))}
+          </div>
+          <div className="min-h-[1.1em]">
+            {hoveredRow ? (
+              <span>
+                <span style={{ color: hoveredRow.color }}>{tierConfig[hoveredRow.skill.tier].label}</span>
+                <span className="text-ink-300 dark:text-ink-600"> · </span>
+                {hoveredRow.skill.category}
+              </span>
+            ) : (
+              <span className="text-ink-300 dark:text-ink-700">hover a commit for detail</span>
+            )}
+          </div>
+        </div>
       </div>
+
+      <style>{`
+        :root { --row-hover: rgba(15, 23, 42, 0.04); }
+        .dark { --row-hover: rgba(241, 245, 249, 0.06); }
+      `}</style>
     </div>
   );
 }

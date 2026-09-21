@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import HeroTerminal from '../components/HeroTerminal.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import Timeline from '../components/Timeline.astro';
-import SkillTiers from '../components/SkillTiers.tsx';
+import SkillManifest from '../components/SkillManifest.tsx';
 import SkillBars from '../components/SkillBars.tsx';
 import StatCounter from '../components/StatCounter.tsx';
 import { site } from '../lib/site';
@@ -13,14 +13,13 @@ const featured = projects.slice(0, 4);
 ---
 <Base>
   <!-- HERO -->
-  <section class="relative overflow-hidden">
-    <div class="absolute inset-0 grid-bg animate-gridmove opacity-60 pointer-events-none"></div>
-    <div class="container-prose pt-16 pb-20 sm:pt-24 sm:pb-28 relative">
+  <section class="relative">
+    <div class="container-prose pt-16 pb-20 sm:pt-24 sm:pb-28">
       <div class="grid lg:grid-cols-2 gap-10 items-center">
         <div class="reveal">
-          <p class="section-eyebrow mb-3">// senior software developer</p>
+          <p class="prompt-line"><span class="prompt-sigil">$</span> whoami</p>
           <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1]">
-            Hi, I'm <span class="gradient-text">Shahirul</span>.
+            Shahirul Amin.
             <br/>
             I build <span class="text-accent">backends</span> that scale.
           </h1>
@@ -38,10 +37,13 @@ const featured = projects.slice(0, 4);
           </div>
           <div class="mt-8 flex items-center gap-4 text-xs font-mono text-ink-500 dark:text-ink-400">
             <span class="inline-flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-terminal-green animate-pulse"></span>
+              <span class="w-2 h-2 rounded-full bg-terminal-green"></span>
               Available for collaboration
             </span>
-            <span>📍 {site.location}</span>
+            <span class="inline-flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {site.location}
+            </span>
           </div>
         </div>
         <div class="lg:pl-6">
@@ -71,33 +73,35 @@ const featured = projects.slice(0, 4);
 
   <!-- ABOUT -->
   <section id="about" class="container-prose mt-24">
-    <div class="grid md:grid-cols-3 gap-10">
-      <div class="reveal">
-        <p class="section-eyebrow">// 01</p>
-        <h2 class="section-title mt-2">About</h2>
-      </div>
-      <div class="md:col-span-2 reveal space-y-4 text-ink-700 dark:text-ink-300 leading-relaxed">
-        <p>
-          I'm a backend-focused software developer with a strong emphasis on building <strong class="text-ink-900 dark:text-ink-50">scalable
-          APIs</strong>, web applications, and developer tooling. PHP and Laravel are my home turf, but I'm comfortable across
-          full-stack web workflows and containerised environments.
-        </p>
-        <p>
-          Currently, I'm a <strong class="text-ink-900 dark:text-ink-50">Senior Software Developer</strong> at Nindatech, building
-          an AI-assisted production monitoring platform — deterministic pipelines paired with bounded LLM agents that read real
-          source code to diagnose and propose fixes for production issues. I previously led the backend migration of
-          <a class="text-accent hover:underline" href="https://eventilla.com" target="_blank" rel="noreferrer">Eventilla</a> from
-          a legacy PHP framework to a modern Laravel + React stack. Before Nindatech, I spent two and a half years at MBPP
-          (Penang Island City Council) building internal systems and running web/DB infrastructure on Nutanix HCI.
-        </p>
-        <p>
-          I use AI tooling as part of my delivery workflow — for scaffolding, code review, and debugging — while owning the architecture and every line I commit.
-          I'm also a part-time Software Engineering degree student at UTM Space.
-        </p>
-        <div class="flex flex-wrap gap-2 pt-2">
-          <span class="badge">🇲🇾 Bahasa Melayu</span>
-          <span class="badge">🇬🇧 English</span>
-          <span class="badge">🇮🇳 Tamil</span>
+    <div class="session-rail">
+      <p class="prompt-line"><span class="prompt-sigil">$</span> cat about.md</p>
+      <div class="grid md:grid-cols-3 gap-10">
+        <div class="reveal">
+          <h2 class="section-title">About</h2>
+        </div>
+        <div class="md:col-span-2 reveal space-y-4 text-ink-700 dark:text-ink-300 leading-relaxed">
+          <p>
+            I'm a backend-focused software developer with a strong emphasis on building <strong class="text-ink-900 dark:text-ink-50">scalable
+            APIs</strong>, web applications, and developer tooling. PHP and Laravel are my home turf, but I'm comfortable across
+            full-stack web workflows and containerised environments.
+          </p>
+          <p>
+            Currently, I'm a <strong class="text-ink-900 dark:text-ink-50">Senior Software Developer</strong> at Nindatech, building
+            an AI-assisted production monitoring platform — deterministic pipelines paired with bounded LLM agents that read real
+            source code to diagnose and propose fixes for production issues. I previously led the backend migration of
+            <a class="text-accent hover:underline" href="https://eventilla.com" target="_blank" rel="noreferrer">Eventilla</a> from
+            a legacy PHP framework to a modern Laravel + React stack. Before Nindatech, I spent two and a half years at MBPP
+            (Penang Island City Council) building internal systems and running web/DB infrastructure on Nutanix HCI.
+          </p>
+          <p>
+            I use AI tooling as part of my delivery workflow — for scaffolding, code review, and debugging — while owning the architecture and every line I commit.
+            I'm also a part-time Software Engineering degree student at UTM Space.
+          </p>
+          <div class="flex flex-wrap gap-2 pt-2">
+            <span class="badge">Bahasa Melayu</span>
+            <span class="badge">English</span>
+            <span class="badge">Tamil</span>
+          </div>
         </div>
       </div>
     </div>
@@ -106,18 +110,17 @@ const featured = projects.slice(0, 4);
   <!-- SKILLS -->
   <section id="skills" class="container-prose mt-24">
     <div class="text-center reveal">
-      <p class="section-eyebrow">// 02</p>
+      <p class="prompt-line justify-center"><span class="prompt-sigil">$</span> cat composer.json skills.git</p>
       <h2 class="section-title mt-2">Skills & technologies</h2>
       <p class="mt-3 text-ink-600 dark:text-ink-400 max-w-2xl mx-auto">
         Strongest where it matters — backend, databases, and the workflows that hold systems together.
       </p>
     </div>
     <div class="mt-10 grid lg:grid-cols-2 gap-10 items-start">
-      <div class="reveal">
-        <SkillTiers client:visible />
+      <div class="reveal min-w-0">
+        <SkillManifest client:visible />
       </div>
-      <div class="card reveal">
-        <h3 class="font-mono text-sm text-ink-500 dark:text-ink-400 mb-4">network_topology.svg</h3>
+      <div class="reveal min-w-0">
         <SkillBars client:visible />
       </div>
     </div>
@@ -125,8 +128,8 @@ const featured = projects.slice(0, 4);
 
   <!-- EXPERIENCE -->
   <section id="experience" class="container-prose mt-24">
-    <div class="reveal">
-      <p class="section-eyebrow">// 03</p>
+    <div class="session-rail reveal">
+      <p class="prompt-line"><span class="prompt-sigil">$</span> git log --stat --author=shahirul</p>
       <h2 class="section-title mt-2">Experience</h2>
       <p class="mt-3 text-ink-600 dark:text-ink-400 max-w-2xl">
         A timeline from training programmers, to building government systems, to leading SaaS migrations.
@@ -140,8 +143,8 @@ const featured = projects.slice(0, 4);
   <!-- PROJECTS -->
   <section id="projects" class="container-prose mt-24">
     <div class="flex items-end justify-between gap-4 reveal">
-      <div>
-        <p class="section-eyebrow">// 04</p>
+      <div class="session-rail">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> ls -la ~/projects</p>
         <h2 class="section-title mt-2">Selected projects</h2>
         <p class="mt-3 text-ink-600 dark:text-ink-400 max-w-2xl">
           Production systems, internal tooling, and migrations. Click through for case studies.
@@ -159,15 +162,20 @@ const featured = projects.slice(0, 4);
   </section>
 
   <!-- CONTACT -->
-  <section id="contact" class="container-prose mt-24">
-    <div class="card reveal !p-10 text-center relative overflow-hidden">
-      <div class="absolute inset-0 grid-bg opacity-40 pointer-events-none"></div>
-      <div class="relative">
-        <p class="section-eyebrow">// 05</p>
-        <h2 class="section-title mt-2">Let's build something.</h2>
+  <section id="contact" class="container-prose mt-24 mb-4">
+    <p class="prompt-line"><span class="prompt-sigil">$</span> mailto {site.email}</p>
+    <div class="terminal reveal">
+      <div class="terminal-header">
+        <span class="terminal-dot bg-terminal-red"></span>
+        <span class="terminal-dot bg-terminal-amber"></span>
+        <span class="terminal-dot bg-terminal-green"></span>
+        <span class="ml-2 font-mono text-xs text-ink-500 dark:text-ink-400">~/shahirul — zsh</span>
+      </div>
+      <div class="p-6 sm:p-10 text-center">
+        <h2 class="section-title">Open to backend work</h2>
         <p class="mt-3 text-ink-600 dark:text-ink-300 max-w-xl mx-auto">
-          Got a backend project, an audit, or just want to chat about Laravel architecture?
-          The fastest way to reach me is email.
+          Got a backend project, an audit, or want to talk through Laravel architecture?
+          Email is the fastest way to reach me.
         </p>
         <div class="mt-8 flex flex-wrap justify-center gap-3">
           <a href={`mailto:${site.email}?subject=Hello%20from%20your%20portfolio`} class="btn-primary">
@@ -177,6 +185,9 @@ const featured = projects.slice(0, 4);
           <a href={site.github} target="_blank" rel="noreferrer" class="btn-ghost">GitHub →</a>
           <a href={site.linkedin} target="_blank" rel="noreferrer" class="btn-ghost">LinkedIn →</a>
         </div>
+        <p class="mt-8 font-mono text-xs text-ink-400 dark:text-ink-600">
+          <span class="text-terminal-green">➜</span> <span class="text-accent">~</span><span class="cursor"></span>
+        </p>
       </div>
     </div>
   </section>

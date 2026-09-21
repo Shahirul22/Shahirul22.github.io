@@ -20,57 +20,60 @@ const work = [
   <ProjectHeader title={p.title} tagline={p.tagline} status={p.status} stack={p.stack} metrics={p.metrics} />
 
   <section class="container-prose mt-4">
-    <div class="card reveal">
-      <p class="section-eyebrow">// overview</p>
-      <h2 class="text-2xl font-bold mt-2">Migrating a live product without stopping it</h2>
-      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
-        <a class="text-accent hover:underline" href="https://eventilla.com" target="_blank" rel="noreferrer">Eventilla</a> is
-        a live events management SaaS platform. I led backend development on migrating it from an undocumented legacy PHP MVC
-        framework (circa 2011) to a modern <strong class="text-ink-900 dark:text-ink-50">Laravel + React</strong> stack,
-        with the legacy system continuing to serve production traffic throughout.
-      </p>
-      <p class="mt-3 text-sm text-ink-500 dark:text-ink-400 italic">
-        Public product, private repo. I've since moved on to other work at Nindatech — this covers the migration work as delivered.
-      </p>
-    </div>
-  </section>
+    <div class="session-rail">
+      <div class="reveal">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> cat README.md</p>
+        <p class="text-ink-700 dark:text-ink-300 leading-relaxed max-w-3xl">
+          <a class="text-accent hover:underline" href="https://eventilla.com" target="_blank" rel="noreferrer">Eventilla</a> is
+          a live events management SaaS platform. I led backend development on migrating it from an undocumented legacy PHP MVC
+          framework (circa 2011) to a modern <strong class="text-ink-900 dark:text-ink-50">Laravel + React</strong> stack,
+          with the legacy system continuing to serve production traffic throughout.
+        </p>
+        <p class="mt-3 text-sm text-ink-500 dark:text-ink-400">
+          Public product, private repo. I've since moved on to other work at Nindatech — this covers the migration work as delivered.
+        </p>
+      </div>
 
-  <!-- Constraints -->
-  <section class="container-prose mt-10">
-    <div class="reveal">
-      <p class="section-eyebrow">// constraints</p>
-      <h2 class="text-2xl font-bold mt-2">What made it hard</h2>
-    </div>
-    <div class="mt-6 grid md:grid-cols-3 gap-4">
-      {constraints.map((c, i) => (
-        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
-          <h3 class="font-bold text-ink-900 dark:text-ink-50">{c.title}</h3>
-          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{c.body}</p>
+      <!-- Constraints -->
+      <div class="reveal mt-10">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> cat CONSTRAINTS.md</p>
+        <h2 class="text-2xl font-bold">What made it hard</h2>
+        <div class="mt-6 grid md:grid-cols-3 gap-4">
+          {constraints.map((c, i) => (
+            <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+              <h3 class="font-bold text-ink-900 dark:text-ink-50">{c.title}</h3>
+              <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{c.body}</p>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  </section>
+      </div>
 
-  <!-- Work -->
-  <section class="container-prose mt-10">
-    <div class="reveal">
-      <p class="section-eyebrow">// what I built</p>
-      <h2 class="text-2xl font-bold mt-2">Query fix, RBAC rebuild, new APIs</h2>
-    </div>
-    <div class="mt-6 grid md:grid-cols-3 gap-4">
-      {work.map((w, i) => (
-        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
-          <h3 class="font-bold text-ink-900 dark:text-ink-50">{w.title}</h3>
-          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{w.body}</p>
+      <!-- Work -->
+      <div class="reveal mt-10">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> git log --oneline --author=shahirul</p>
+        <h2 class="text-2xl font-bold">Query fix, RBAC rebuild, new APIs</h2>
+        <div class="mt-6 grid md:grid-cols-3 gap-4">
+          {work.map((w, i) => (
+            <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+              <h3 class="font-bold text-ink-900 dark:text-ink-50">{w.title}</h3>
+              <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{w.body}</p>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
 
-    <div class="mt-6 grid sm:grid-cols-1 gap-4">
-      <div class="card reveal">
-        <h3 class="font-mono text-sm text-ink-500 dark:text-ink-400">page load</h3>
-        <p class="mt-2 text-3xl font-bold text-accent">20s → 3s</p>
-        <p class="text-sm text-ink-600 dark:text-ink-300 mt-1">~85% reduction on a critical hot path, fixed at the query level rather than papered over with caching.</p>
+        <div class="mt-6 terminal">
+          <div class="terminal-header">
+            <span class="terminal-dot bg-terminal-red"></span>
+            <span class="terminal-dot bg-terminal-amber"></span>
+            <span class="terminal-dot bg-terminal-green"></span>
+            <span class="ml-2 font-mono text-xs text-ink-500 dark:text-ink-400">benchmark --page=event-dashboard</span>
+          </div>
+          <div class="p-4">
+            <h3 class="font-mono text-xs text-ink-500 dark:text-ink-400">page load</h3>
+            <p class="mt-1 text-2xl font-bold text-accent font-mono">20s → 3s</p>
+            <p class="text-sm text-ink-600 dark:text-ink-300 mt-1">~85% reduction on a critical hot path, fixed at the query level rather than papered over with caching.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>

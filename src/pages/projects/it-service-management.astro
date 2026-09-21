@@ -40,111 +40,102 @@ const decisions = [
   <ProjectHeader title={p.title} tagline={p.tagline} status={p.status} stack={p.stack} metrics={p.metrics} />
 
   <section class="container-prose mt-4">
-    <div class="card reveal">
-      <p class="section-eyebrow">// overview</p>
-      <h2 class="text-2xl font-bold mt-2">Replacing paper forms and email chains</h2>
-      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
-        An internal IT service management system built for the IT division of a Malaysian municipal council.
-        Staff across all departments use it to file ICT complaints, request email accounts, apply for VPN access,
-        manage application profiles, submit change requests, book video conferencing sessions and reserve ICT assets —
-        replacing paper forms and email chains with <strong class="text-ink-900 dark:text-ink-50">tracked, multi-level
-        approval workflows</strong> and PDF outputs for each request type.
-      </p>
-      <p class="mt-3 text-sm text-ink-500 dark:text-ink-400 italic">
-        No live URL or repo — the client is a local government authority, so deployment stays private.
-      </p>
-    </div>
-  </section>
+    <div class="session-rail">
+      <div class="reveal">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> cat README.md</p>
+        <p class="text-ink-700 dark:text-ink-300 leading-relaxed max-w-3xl">
+          An internal IT service management system built for the IT division of a Malaysian municipal council.
+          Staff across all departments use it to file ICT complaints, request email accounts, apply for VPN access,
+          manage application profiles, submit change requests, book video conferencing sessions and reserve ICT assets —
+          replacing paper forms and email chains with <strong class="text-ink-900 dark:text-ink-50">tracked, multi-level
+          approval workflows</strong> and PDF outputs for each request type.
+        </p>
+        <p class="mt-3 text-sm text-ink-500 dark:text-ink-400">
+          No live URL or repo — the client is a local government authority, so deployment stays private.
+        </p>
+      </div>
 
-  <!-- Modules -->
-  <section class="container-prose mt-10">
-    <div class="reveal">
-      <p class="section-eyebrow">// request modules</p>
-      <h2 class="text-2xl font-bold mt-2">Eight request types, one approval engine</h2>
-    </div>
-    <div class="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {modules.map((m, i) => (
-        <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
-          <h3 class="font-bold text-ink-900 dark:text-ink-50">{m.name}</h3>
-          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{m.body}</p>
+      <!-- Modules -->
+      <div class="reveal mt-10">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> ls app/Modules/</p>
+        <h2 class="text-2xl font-bold">Eight request types, one approval engine</h2>
+        <div class="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {modules.map((m, i) => (
+            <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
+              <h3 class="font-bold text-ink-900 dark:text-ink-50">{m.name}</h3>
+              <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{m.body}</p>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  </section>
+      </div>
 
-  <!-- Approval flows -->
-  <section class="container-prose mt-10">
-    <div class="reveal">
-      <p class="section-eyebrow">// approval workflows</p>
-      <h2 class="text-2xl font-bold mt-2">Multi-level review before fulfilment</h2>
-      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
-        Any stage can be rejected with remarks, notifying the applicant by email. Approved requests can be reverted
-        to a previous level, with a full snapshot of the reverted decision preserved.
-      </p>
-    </div>
-    <div class="mt-6 grid md:grid-cols-2 gap-4">
-      {approvalFlows.map((f, i) => (
-        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
-          <h3 class="font-bold text-ink-900 dark:text-ink-50">{f.title}</h3>
-          <div class="mt-3 flex flex-wrap items-center gap-1.5 font-mono text-xs">
-            {f.stages.map((s, j) => (
-              <>
-                <span class="px-2 py-1 rounded border border-ink-200 dark:border-ink-800 bg-ink-50/60 dark:bg-ink-900/60">{s}</span>
-                {j < f.stages.length - 1 && <span class="text-accent">→</span>}
-              </>
-            ))}
-          </div>
+      <!-- Approval flows -->
+      <div class="reveal mt-10">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> cat approval-chains.log</p>
+        <h2 class="text-2xl font-bold">Multi-level review before fulfilment</h2>
+        <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+          Any stage can be rejected with remarks, notifying the applicant by email. Approved requests can be reverted
+          to a previous level, with a full snapshot of the reverted decision preserved.
+        </p>
+        <div class="mt-6 grid md:grid-cols-2 gap-4">
+          {approvalFlows.map((f, i) => (
+            <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+              <h3 class="font-bold text-ink-900 dark:text-ink-50">{f.title}</h3>
+              <div class="mt-3 flex flex-wrap items-center gap-1.5 font-mono text-xs">
+                {f.stages.map((s, j) => (
+                  <>
+                    <span class="px-2 py-1 rounded border border-ink-200 dark:border-ink-800">{s}</span>
+                    {j < f.stages.length - 1 && <span class="text-accent">→</span>}
+                  </>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  </section>
+      </div>
 
-  <!-- RBAC -->
-  <section class="container-prose mt-10">
-    <div class="card reveal">
-      <p class="section-eyebrow">// RBAC</p>
-      <h2 class="text-2xl font-bold mt-2">Three-tier permission hierarchy</h2>
-      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
-        Built on Spatie Laravel Permission with a custom extension: permissions carry a module reference, and modules
-        group under a main-module record, forming a Main Module → Module → Permission hierarchy. 13 roles ship with
-        the system, spanning full admins, department-level admins, technicians, approvers and general staff, with
-        150+ granular permissions covering CRUD, per-level approval actions and report access per module. Checks run
-        at route middleware, controller/view (<code class="font-mono text-accent">@can</code>) and inside the
-        permission-management UI itself. Users are additionally scoped by department and section, and every request
-        stores the applicant's department, section, position and grade as of submission time.
-      </p>
-    </div>
-  </section>
+      <!-- RBAC -->
+      <div class="reveal mt-10">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> php artisan permission:show</p>
+        <h2 class="text-2xl font-bold">Three-tier permission hierarchy</h2>
+        <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed max-w-3xl">
+          Built on Spatie Laravel Permission with a custom extension: permissions carry a module reference, and modules
+          group under a main-module record, forming a Main Module → Module → Permission hierarchy. 13 roles ship with
+          the system, spanning full admins, department-level admins, technicians, approvers and general staff, with
+          150+ granular permissions covering CRUD, per-level approval actions and report access per module. Checks run
+          at route middleware, controller/view (<code class="font-mono text-accent">@can</code>) and inside the
+          permission-management UI itself. Users are additionally scoped by department and section, and every request
+          stores the applicant's department, section, position and grade as of submission time.
+        </p>
+      </div>
 
-  <!-- Security -->
-  <section class="container-prose mt-10">
-    <div class="reveal">
-      <p class="section-eyebrow">// security</p>
-      <h2 class="text-2xl font-bold mt-2">Defence beyond RBAC</h2>
-    </div>
-    <div class="mt-6 grid md:grid-cols-3 gap-4">
-      {security.map((s, i) => (
-        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
-          <h3 class="font-bold text-ink-900 dark:text-ink-50">{s.title}</h3>
-          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{s.body}</p>
+      <!-- Security -->
+      <div class="reveal mt-10">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> cat SECURITY.md</p>
+        <h2 class="text-2xl font-bold">Defence beyond RBAC</h2>
+        <div class="mt-6 grid md:grid-cols-3 gap-4">
+          {security.map((s, i) => (
+            <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+              <h3 class="font-bold text-ink-900 dark:text-ink-50">{s.title}</h3>
+              <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{s.body}</p>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  </section>
+      </div>
 
-  <!-- Decisions -->
-  <section class="container-prose mt-10">
-    <div class="reveal">
-      <p class="section-eyebrow">// engineering decisions</p>
-      <h2 class="text-2xl font-bold mt-2">Choices worth noting</h2>
-    </div>
-    <div class="mt-6 grid md:grid-cols-2 gap-4">
-      {decisions.map((d, i) => (
-        <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
-          <h3 class="font-bold text-ink-900 dark:text-ink-50">{d.title}</h3>
-          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{d.body}</p>
+      <!-- Decisions -->
+      <div class="reveal mt-10">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> git log --oneline -- decisions/</p>
+        <h2 class="text-2xl font-bold">Choices worth noting</h2>
+        <div class="mt-6 grid md:grid-cols-2 gap-4">
+          {decisions.map((d, i) => (
+            <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
+              <h3 class="font-bold text-ink-900 dark:text-ink-50">{d.title}</h3>
+              <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{d.body}</p>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   </section>
 

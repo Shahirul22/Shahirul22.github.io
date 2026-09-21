@@ -62,103 +62,96 @@ const features = [
   <ProjectHeader title={p.title} tagline={p.tagline} status={p.status} stack={p.stack} metrics={p.metrics} />
 
   <section class="container-prose mt-4">
-    <div class="card reveal">
-      <p class="section-eyebrow">// overview</p>
-      <h2 class="text-2xl font-bold mt-2">Full-lifecycle procurement, department-level tenancy</h2>
-      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
-        A procurement management system I built for a Malaysian government agency. It handles the full
-        lifecycle of a procurement case — from opening a file through a multi-step wizard, to committee
-        decision and objection handling — with <strong class="text-ink-900 dark:text-ink-50">department-level tenancy and full RBAC</strong>.
-      </p>
-      <p class="mt-3 text-sm text-ink-500 dark:text-ink-400 italic">
-        No live URL or repo — the client is a government agency, so the system and deployment details stay private.
-      </p>
-    </div>
-  </section>
+    <div class="session-rail">
+      <div class="reveal">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> cat README.md</p>
+        <p class="text-ink-700 dark:text-ink-300 leading-relaxed max-w-3xl">
+          A procurement management system I built for a Malaysian government agency. It handles the full
+          lifecycle of a procurement case — from opening a file through a multi-step wizard, to committee
+          decision and objection handling — with <strong class="text-ink-900 dark:text-ink-50">department-level tenancy and full RBAC</strong>.
+        </p>
+        <p class="mt-3 text-sm text-ink-500 dark:text-ink-400">
+          No live URL or repo — the client is a government agency, so the system and deployment details stay private.
+        </p>
+      </div>
 
-  <!-- Wizard -->
-  <section class="container-prose mt-10">
-    <div class="reveal">
-      <p class="section-eyebrow">// case-opening wizard</p>
-      <h2 class="text-2xl font-bold mt-2">Six-step wizard, enum-gated</h2>
-      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
-        A status enum moves through <span class="font-mono text-accent">DRAFT → SAVED → COMPLETE</span>, plus a
-        terminal <span class="font-mono text-accent">CLOSED</span>, and owns its own transition and completeness
-        checks rather than leaving them scattered across services.
-      </p>
-    </div>
-    <div class="mt-8 grid md:grid-cols-3 gap-4">
-      {wizardSteps.map((s, i) => (
-        <div class="card reveal relative" style={`transition-delay:${i * 80}ms`}>
-          <div class="flex items-center gap-3">
-            <span class="w-10 h-10 rounded-lg bg-accent/15 text-accent font-mono font-bold flex items-center justify-center">{s.n}</span>
-            <div class="font-bold">{s.label}</div>
-          </div>
+      <!-- Wizard -->
+      <div class="reveal mt-10">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> php artisan wizard:steps case-opening</p>
+        <h2 class="text-2xl font-bold">Six-step wizard, enum-gated</h2>
+        <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+          A status enum moves through <span class="font-mono text-accent">DRAFT → SAVED → COMPLETE</span>, plus a
+          terminal <span class="font-mono text-accent">CLOSED</span>, and owns its own transition and completeness
+          checks rather than leaving them scattered across services.
+        </p>
+        <div class="mt-6 grid md:grid-cols-3 gap-4">
+          {wizardSteps.map((s, i) => (
+            <div class="card reveal relative" style={`transition-delay:${i * 80}ms`}>
+              <div class="flex items-center gap-3">
+                <span class="font-mono text-accent text-sm">{String(s.n).padStart(2, '0')}</span>
+                <div class="font-bold">{s.label}</div>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-    <div class="mt-6 flex flex-wrap gap-2">
-      {statuses.map((s) => <span class="badge font-mono">{s}</span>)}
-    </div>
-  </section>
+        <div class="mt-6 flex flex-wrap gap-2">
+          {statuses.map((s) => <span class="badge font-mono">{s}</span>)}
+        </div>
+      </div>
 
-  <!-- Committee decisions -->
-  <section class="container-prose mt-10">
-    <div class="reveal">
-      <p class="section-eyebrow">// committee decisions</p>
-      <h2 class="text-2xl font-bold mt-2">Six outcomes, two paths forward</h2>
-      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
-        Only outcomes that pass or clear price negotiation can proceed to the objection stage. Everything else is terminal for that path.
-      </p>
-    </div>
-    <div class="mt-6 grid md:grid-cols-2 gap-3">
-      {decisions.map((d) => (
-        <div class={`px-4 py-3 rounded-lg border font-mono text-sm flex items-center justify-between ${d.proceeds ? 'border-accent/40 bg-accent/10' : 'border-ink-200 dark:border-ink-800 bg-ink-50/60 dark:bg-ink-900/60'}`}>
-          <span>{d.code}</span>
-          <span class={d.proceeds ? 'text-accent' : 'text-ink-500 dark:text-ink-400'}>{d.proceeds ? '→ objection stage' : 'terminal'}</span>
+      <!-- Committee decisions -->
+      <div class="reveal mt-10">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> php artisan enum:show CommitteeDecision</p>
+        <h2 class="text-2xl font-bold">Six outcomes, two paths forward</h2>
+        <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+          Only outcomes that pass or clear price negotiation can proceed to the objection stage. Everything else is terminal for that path.
+        </p>
+        <div class="mt-6 grid md:grid-cols-2 gap-3">
+          {decisions.map((d) => (
+            <div class={`px-4 py-3 rounded border font-mono text-sm flex items-center justify-between ${d.proceeds ? 'border-accent/40 bg-accent/[0.06]' : 'border-ink-200 dark:border-ink-800'}`}>
+              <span>{d.code}</span>
+              <span class={d.proceeds ? 'text-accent' : 'text-ink-500 dark:text-ink-400'}>{d.proceeds ? '→ objection stage' : 'terminal'}</span>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  </section>
+      </div>
 
-  <!-- RBAC -->
-  <section class="container-prose mt-10">
-    <div class="reveal">
-      <p class="section-eyebrow">// RBAC</p>
-      <h2 class="text-2xl font-bold mt-2">Layered permissions on Spatie</h2>
-      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
-        Permissions are scoped per leaf menu item only — branch menus never carry one of their own, generated
-        automatically by a seeder that walks the menu tree. Department-level tenancy is enforced at the
-        repository layer via a DTO field, never in views. One superadmin account bypasses every check,
-        deliberately enforced at three layers rather than relying on a single gate.
-      </p>
-    </div>
-    <div class="mt-6 grid md:grid-cols-2 gap-4">
-      {rbacLayers.map((l, i) => (
-        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
-          <div class="flex items-center gap-2">
-            <span class="w-8 h-8 rounded-lg bg-accent/15 text-accent font-mono flex items-center justify-center">{i + 1}</span>
-            <h3 class="font-bold">{l.title}</h3>
-          </div>
-          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300">{l.body}</p>
+      <!-- RBAC -->
+      <div class="reveal mt-10">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> php artisan permission:show</p>
+        <h2 class="text-2xl font-bold">Layered permissions on Spatie</h2>
+        <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+          Permissions are scoped per leaf menu item only — branch menus never carry one of their own, generated
+          automatically by a seeder that walks the menu tree. Department-level tenancy is enforced at the
+          repository layer via a DTO field, never in views. One superadmin account bypasses every check,
+          deliberately enforced at three layers rather than relying on a single gate.
+        </p>
+        <div class="mt-6 grid md:grid-cols-2 gap-4">
+          {rbacLayers.map((l, i) => (
+            <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-accent text-sm">{String(i + 1).padStart(2, '0')}</span>
+                <h3 class="font-bold">{l.title}</h3>
+              </div>
+              <p class="mt-2 text-sm text-ink-600 dark:text-ink-300">{l.body}</p>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  </section>
+      </div>
 
-  <!-- Features -->
-  <section class="container-prose mt-10">
-    <div class="reveal">
-      <p class="section-eyebrow">// core features & decisions</p>
-      <h2 class="text-2xl font-bold mt-2">How it's built</h2>
-    </div>
-    <div class="mt-6 grid md:grid-cols-2 gap-4">
-      {features.map((f, i) => (
-        <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
-          <h3 class="font-bold text-ink-900 dark:text-ink-50">{f.title}</h3>
-          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{f.body}</p>
+      <!-- Features -->
+      <div class="reveal mt-10">
+        <p class="prompt-line"><span class="prompt-sigil">$</span> git log --oneline -- decisions/</p>
+        <h2 class="text-2xl font-bold">How it's built</h2>
+        <div class="mt-6 grid md:grid-cols-2 gap-4 min-w-0">
+          {features.map((f, i) => (
+            <div class="card reveal min-w-0" style={`transition-delay:${i * 60}ms`}>
+              <h3 class="font-bold text-ink-900 dark:text-ink-50">{f.title}</h3>
+              <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed break-words">{f.body}</p>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   </section>
 

@@ -8,9 +8,8 @@ interface Props {
 }
 const { title, tagline, status, stack, metrics } = Astro.props;
 ---
-<section class="container-prose pt-12 pb-10 relative">
-  <div class="absolute inset-0 grid-bg opacity-50 pointer-events-none -z-10"></div>
-  <a href="/projects/" class="text-sm font-mono text-ink-500 dark:text-ink-400 hover:text-accent">← all projects</a>
+<section class="container-prose pt-12 pb-10">
+  <a href="/projects/" class="text-sm font-mono text-ink-500 dark:text-ink-400 hover:text-accent">← cd ../projects</a>
   <div class="mt-4 flex flex-wrap items-center gap-3">
     <span class="badge-accent">{status}</span>
   </div>

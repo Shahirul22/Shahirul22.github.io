@@ -5,7 +5,7 @@ const PHRASES = [
   'Builder of scalable APIs',
   'Database query whisperer',
   'AI-assisted dev workflows',
-  'Penang, Malaysia 🇲🇾',
+  'Penang, Malaysia',
 ];
 
 export default function TypingHero() {
