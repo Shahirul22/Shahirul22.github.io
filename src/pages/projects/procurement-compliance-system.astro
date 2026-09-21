@@ -1,0 +1,171 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectHeader from '../../components/ProjectHeader.astro';
+import { projects } from '../../lib/data';
+const p = projects.find((x) => x.slug === 'procurement-compliance-system')!;
+
+const wizardSteps = [
+  { n: 1, label: 'Case details' },
+  { n: 2, label: 'Required fields' },
+  { n: 3, label: 'Required documents' },
+  { n: 4, label: 'Review' },
+  { n: 5, label: 'Committee routing' },
+  { n: 6, label: 'Finalise' },
+];
+
+const statuses = ['DRAFT', 'SAVED', 'COMPLETE', 'CLOSED (terminal)'];
+
+const decisions = [
+  { code: 'PASS', proceeds: true },
+  { code: 'PRICE NEGOTIATION — SUCCESS', proceeds: true },
+  { code: 'CANCELLED', proceeds: false },
+  { code: 'CANCELLED — REDO', proceeds: false },
+  { code: 'PRICE NEGOTIATION — FAILED', proceeds: false },
+  { code: 'BLACKLISTED', proceeds: false },
+];
+
+const rbacLayers = [
+  { title: 'Category grants', body: 'A user category is a Spatie role; permissions flow through model_has_roles.' },
+  { title: 'Direct grants', body: 'Per-user overrides via model_has_permissions, on top of the role.' },
+  { title: 'Effective set', body: "getAllPermissions() unions both automatically — @can and route middleware need no extra resolution code." },
+  { title: 'Auto-grant view', body: 'Granting create/edit/delete always grants view too, so callers only ever check .view for visibility.' },
+];
+
+const features = [
+  {
+    title: 'Case-opening wizard',
+    body: 'A 6-step wizard collects case details, required fields and required documents per step. A status enum owns its own transition and completeness logic, rather than scattering status checks across services — one place decides what state a case is allowed to move to next.',
+  },
+  {
+    title: 'Document upload with a storage guard',
+    body: 'Documents are versioned by turn number and stored on a per-record folder. A pre-flight check confirms the storage mount is reachable before any write; a DB-transaction failure rolls back by deleting the file that was just written, so the file store and database never drift out of sync from a partial failure.',
+  },
+  {
+    title: 'Committee decision & objection routing',
+    body: 'A decision enum records the committee outcome. Only two of six possible outcomes are eligible to proceed to the objection stage, enforced by the enum itself — any disallowed transition throws a dedicated exception instead of silently applying.',
+  },
+  {
+    title: 'Audit trail',
+    body: 'Built on owen-it/laravel-auditing, with a custom filtered viewer on top of the package\'s raw log, gated behind its own permission rather than exposed as a raw table dump.',
+  },
+  {
+    title: 'Hybrid modular architecture',
+    body: 'Traditional Laravel structure for HTTP and entity layers, combined with a custom Modules/{Module}/{Menu}/{Services,Repositories,DTOs} tree for domain logic — organised by feature instead of piling into generic Services and Repositories folders.',
+  },
+  {
+    title: 'Separate test and dev databases',
+    body: "Feature and Unit suites run against a dedicated, fully isolated MySQL test database with RefreshDatabase. Browser tests intentionally hit the real dev-served app instead, with explicit teardown, since RefreshDatabase can't reach across the separate dev process.",
+  },
+];
+---
+<Base title={`${p.title} — Case study`}>
+  <ProjectHeader title={p.title} tagline={p.tagline} status={p.status} stack={p.stack} metrics={p.metrics} />
+
+  <section class="container-prose mt-4">
+    <div class="card reveal">
+      <p class="section-eyebrow">// overview</p>
+      <h2 class="text-2xl font-bold mt-2">Full-lifecycle procurement, department-level tenancy</h2>
+      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
+        A procurement management system I built for a Malaysian government agency. It handles the full
+        lifecycle of a procurement case — from opening a file through a multi-step wizard, to committee
+        decision and objection handling — with <strong class="text-ink-900 dark:text-ink-50">department-level tenancy and full RBAC</strong>.
+      </p>
+      <p class="mt-3 text-sm text-ink-500 dark:text-ink-400 italic">
+        No live URL or repo — the client is a government agency, so the system and deployment details stay private.
+      </p>
+    </div>
+  </section>
+
+  <!-- Wizard -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// case-opening wizard</p>
+      <h2 class="text-2xl font-bold mt-2">Six-step wizard, enum-gated</h2>
+      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+        A status enum moves through <span class="font-mono text-accent">DRAFT → SAVED → COMPLETE</span>, plus a
+        terminal <span class="font-mono text-accent">CLOSED</span>, and owns its own transition and completeness
+        checks rather than leaving them scattered across services.
+      </p>
+    </div>
+    <div class="mt-8 grid md:grid-cols-3 gap-4">
+      {wizardSteps.map((s, i) => (
+        <div class="card reveal relative" style={`transition-delay:${i * 80}ms`}>
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-lg bg-accent/15 text-accent font-mono font-bold flex items-center justify-center">{s.n}</span>
+            <div class="font-bold">{s.label}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+    <div class="mt-6 flex flex-wrap gap-2">
+      {statuses.map((s) => <span class="badge font-mono">{s}</span>)}
+    </div>
+  </section>
+
+  <!-- Committee decisions -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// committee decisions</p>
+      <h2 class="text-2xl font-bold mt-2">Six outcomes, two paths forward</h2>
+      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+        Only outcomes that pass or clear price negotiation can proceed to the objection stage. Everything else is terminal for that path.
+      </p>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 gap-3">
+      {decisions.map((d) => (
+        <div class={`px-4 py-3 rounded-lg border font-mono text-sm flex items-center justify-between ${d.proceeds ? 'border-accent/40 bg-accent/10' : 'border-ink-200 dark:border-ink-800 bg-ink-50/60 dark:bg-ink-900/60'}`}>
+          <span>{d.code}</span>
+          <span class={d.proceeds ? 'text-accent' : 'text-ink-500 dark:text-ink-400'}>{d.proceeds ? '→ objection stage' : 'terminal'}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- RBAC -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// RBAC</p>
+      <h2 class="text-2xl font-bold mt-2">Layered permissions on Spatie</h2>
+      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+        Permissions are scoped per leaf menu item only — branch menus never carry one of their own, generated
+        automatically by a seeder that walks the menu tree. Department-level tenancy is enforced at the
+        repository layer via a DTO field, never in views. One superadmin account bypasses every check,
+        deliberately enforced at three layers rather than relying on a single gate.
+      </p>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 gap-4">
+      {rbacLayers.map((l, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-accent/15 text-accent font-mono flex items-center justify-center">{i + 1}</span>
+            <h3 class="font-bold">{l.title}</h3>
+          </div>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300">{l.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// core features & decisions</p>
+      <h2 class="text-2xl font-bold mt-2">How it's built</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 gap-4">
+      {features.map((f, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{f.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{f.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-prose mt-14">
+    <div class="flex flex-wrap justify-between gap-3">
+      <a href="/projects/asset-compliance/" class="btn-ghost">← Previous: Asset Compliance Manager</a>
+      <a href="/projects/hr-management-suite/" class="btn-primary">Next: HR Management Suite →</a>
+    </div>
+  </section>
+</Base>

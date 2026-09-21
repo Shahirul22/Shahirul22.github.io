@@ -1,0 +1,157 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectHeader from '../../components/ProjectHeader.astro';
+import { projects } from '../../lib/data';
+const p = projects.find((x) => x.slug === 'it-service-management')!;
+
+const modules = [
+  { name: 'ICT complaints', body: 'Categorised by hardware/software/network/system, auto-numbered, with a referral chain between technicians and a distinct verification step separating the fix from the quality check.' },
+  { name: 'Email account requests', body: 'Four-level approval before technical fulfilment. Supports filing by a delegate on the applicant\'s behalf.' },
+  { name: 'VPN access requests', body: 'Captures server, vendor and system details behind a three-level approval flow, with file attachments.' },
+  { name: 'Application profile requests', body: 'System access provisioning routed through the requester\'s lead, then the system owner, before IT fulfilment.' },
+  { name: 'Change requests', body: 'System modification requests with type classification, target system and attachments, on a two-level approval.' },
+  { name: 'Access revocation', body: 'Deprovisioning on staff exit/transfer — no approval flow, just task assignment across affected staff and systems.' },
+  { name: 'Video conferencing scheduling', body: 'Calendar-based booking with a two-step admin-then-technician handoff and explicit change logging on every status update.' },
+  { name: 'Equipment reservation', body: 'ICT asset booking with return tracking and a two-level approval.' },
+];
+
+const approvalFlows = [
+  { title: 'Email request', stages: ['Applicant / delegate', 'Team lead', 'IT division head', 'Senior approver', 'IT fulfilment'] },
+  { title: 'VPN request', stages: ['Requester / delegate', 'Team lead', 'IT division head', 'Senior approver', 'IT fulfilment'] },
+  { title: 'Application profile', stages: ['Applicant / delegate', 'Team lead', 'System owner', 'IT fulfilment'] },
+  { title: 'Change request', stages: ['Applicant', 'Team lead', 'IT fulfilment'] },
+];
+
+const security = [
+  { title: 'Malicious input detection', body: 'A global middleware scans all request input against 30+ regex patterns covering SQL injection, XSS, path traversal, SSRF and command injection. Detection triggers logging, admin email alerts and blocks the request.' },
+  { title: 'Account lockout & forced resets', body: 'Failed attempts are tracked on the user model; frozen or inactive accounts are blocked at the middleware level. Expired or first-time passwords force a reset before any route is reachable.' },
+  { title: 'OTP-based verification', body: 'Email verification codes with validity tracking handle password reset flows.' },
+];
+
+const decisions = [
+  { title: 'Polymorphic approval over per-module tables', body: 'One approval table morphs to any request type. Adding a new module means creating the form model and controller — the approval infrastructure already exists. Same pattern for cancellations and reverts.' },
+  { title: 'Denormalised applicant snapshots', body: "Every request stores the applicant's department, section, position and grade at submission time rather than joining to their current record, since staff transfer frequently and reports need the organisational context at time of filing." },
+  { title: 'One-directional HR sync, not a live integration', body: "The council's HR system runs on a separate legacy database. Staff data is pulled via scheduled commands into the app's own database, never written back, decoupling the system from that legacy system's availability." },
+  { title: 'A single lookup table for all domain codes', body: 'Statuses, complaint types, request types, venues and system lists all resolve through one keyed table with a type discriminator, so adding a new lookup value is a data operation, not a code change.' },
+  { title: 'Auto-generated request numbers with a collision guard', body: 'Every request type generates a prefixed sequential number with a uniqueness check that includes soft-deleted records. The counter never recycles.' },
+];
+---
+<Base title={`${p.title} — Case study`}>
+  <ProjectHeader title={p.title} tagline={p.tagline} status={p.status} stack={p.stack} metrics={p.metrics} />
+
+  <section class="container-prose mt-4">
+    <div class="card reveal">
+      <p class="section-eyebrow">// overview</p>
+      <h2 class="text-2xl font-bold mt-2">Replacing paper forms and email chains</h2>
+      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
+        An internal IT service management system built for the IT division of a Malaysian municipal council.
+        Staff across all departments use it to file ICT complaints, request email accounts, apply for VPN access,
+        manage application profiles, submit change requests, book video conferencing sessions and reserve ICT assets —
+        replacing paper forms and email chains with <strong class="text-ink-900 dark:text-ink-50">tracked, multi-level
+        approval workflows</strong> and PDF outputs for each request type.
+      </p>
+      <p class="mt-3 text-sm text-ink-500 dark:text-ink-400 italic">
+        No live URL or repo — the client is a local government authority, so deployment stays private.
+      </p>
+    </div>
+  </section>
+
+  <!-- Modules -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// request modules</p>
+      <h2 class="text-2xl font-bold mt-2">Eight request types, one approval engine</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {modules.map((m, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{m.name}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{m.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Approval flows -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// approval workflows</p>
+      <h2 class="text-2xl font-bold mt-2">Multi-level review before fulfilment</h2>
+      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+        Any stage can be rejected with remarks, notifying the applicant by email. Approved requests can be reverted
+        to a previous level, with a full snapshot of the reverted decision preserved.
+      </p>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 gap-4">
+      {approvalFlows.map((f, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{f.title}</h3>
+          <div class="mt-3 flex flex-wrap items-center gap-1.5 font-mono text-xs">
+            {f.stages.map((s, j) => (
+              <>
+                <span class="px-2 py-1 rounded border border-ink-200 dark:border-ink-800 bg-ink-50/60 dark:bg-ink-900/60">{s}</span>
+                {j < f.stages.length - 1 && <span class="text-accent">→</span>}
+              </>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- RBAC -->
+  <section class="container-prose mt-10">
+    <div class="card reveal">
+      <p class="section-eyebrow">// RBAC</p>
+      <h2 class="text-2xl font-bold mt-2">Three-tier permission hierarchy</h2>
+      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
+        Built on Spatie Laravel Permission with a custom extension: permissions carry a module reference, and modules
+        group under a main-module record, forming a Main Module → Module → Permission hierarchy. 13 roles ship with
+        the system, spanning full admins, department-level admins, technicians, approvers and general staff, with
+        150+ granular permissions covering CRUD, per-level approval actions and report access per module. Checks run
+        at route middleware, controller/view (<code class="font-mono text-accent">@can</code>) and inside the
+        permission-management UI itself. Users are additionally scoped by department and section, and every request
+        stores the applicant's department, section, position and grade as of submission time.
+      </p>
+    </div>
+  </section>
+
+  <!-- Security -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// security</p>
+      <h2 class="text-2xl font-bold mt-2">Defence beyond RBAC</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-3 gap-4">
+      {security.map((s, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{s.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{s.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Decisions -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// engineering decisions</p>
+      <h2 class="text-2xl font-bold mt-2">Choices worth noting</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 gap-4">
+      {decisions.map((d, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{d.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{d.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-prose mt-14">
+    <div class="flex flex-wrap justify-between gap-3">
+      <a href="/projects/iso-qms/" class="btn-ghost">← Previous: ISO Quality Management System</a>
+      <a href="/projects/solenovo-ai-platform/" class="btn-primary">Next: Solenovo AI Operations Platform →</a>
+    </div>
+  </section>
+</Base>

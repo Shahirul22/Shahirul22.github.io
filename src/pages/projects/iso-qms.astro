@@ -1,0 +1,119 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectHeader from '../../components/ProjectHeader.astro';
+import { projects } from '../../lib/data';
+const p = projects.find((x) => x.slug === 'iso-qms')!;
+
+const roles = ['Super Admin', 'Admin', 'Department Admin', 'Normal User'];
+
+const auditModules = [
+  { title: 'Internal audits', body: 'Full CRUD lifecycle for findings, plans and reports, gated behind its own permission.' },
+  { title: 'External / certification audits', body: 'Separate module for certification-body audits, tracked independently from internal cycles.' },
+  { title: 'Audit planning', body: 'Scheduling and planning ahead of certification-body audits, scoped per Malaysian Standard.' },
+];
+
+const features = [
+  {
+    title: 'Controlled document repository',
+    body: "Stores and versions ISO-controlled documents (procedures, manuals, policies, forms) tied to a category, owning department, service and one or more Malaysian Standards. Documents in an inactive/restricted status are blocked from every role except a small set of authorised ones — enforced at the middleware level, not in the view.",
+  },
+  {
+    title: 'Force logout on restricted access',
+    body: "A user outside the authorised roles who requests a restricted document doesn't get a 403 — their session is killed. In this domain, landing on a restricted document ID is treated as more likely probing than misclicking, so it's handled as a security event rather than a navigation error.",
+  },
+  {
+    title: 'Watermarked downloads',
+    body: 'Controlled documents downloaded outside the authorised workflow get stamped as an uncontrolled copy via a PDF watermarking API before being served. Watermarking happens server-side on every download rather than once at upload, so the document store always holds the clean original and every distributed copy is provably marked.',
+  },
+  {
+    title: 'Standards-scoped roles',
+    body: "Roles in the ISO module aren't plain Spatie roles — they're wrapped in a role model tied to a profile and linked to specific Malaysian Standards. A quality officer assigned to one standard's audit cycle doesn't see documents or audits belonging to a standard they aren't responsible for.",
+  },
+  {
+    title: 'Module-named permissions',
+    body: "Permission names read as business modules rather than generic create/edit/delete strings, so a non-technical admin configuring roles in the UI sees the same vocabulary as the route map. Every route group is gated by its own permission middleware rather than checks scattered across controllers.",
+  },
+  {
+    title: 'Read-only integration with the council\'s HR system',
+    body: "The app runs on MySQL but also reads staff/department records live from the council's existing Oracle database through a dedicated integration connection, rather than migrating or mirroring that data — keeping the ISO system a consumer of the council's system of record instead of a second source of truth.",
+  },
+];
+---
+<Base title={`${p.title} — Case study`}>
+  <ProjectHeader title={p.title} tagline={p.tagline} status={p.status} stack={p.stack} metrics={p.metrics} />
+
+  <section class="container-prose mt-4">
+    <div class="card reveal">
+      <p class="section-eyebrow">// overview</p>
+      <h2 class="text-2xl font-bold mt-2">Replacing paper-based ISO document control</h2>
+      <p class="mt-3 text-ink-700 dark:text-ink-300 leading-relaxed">
+        A Quality Management System built for a local government authority to run its ISO certification program.
+        It replaces manual, paper-based document control with a
+        <strong class="text-ink-900 dark:text-ink-50">controlled repository, internal and external audit tracking, and
+        role-based access mapped to specific ISO standards</strong>, used by quality officers, auditors and department
+        admins across the council's departments.
+      </p>
+      <p class="mt-3 text-sm text-ink-500 dark:text-ink-400 italic">
+        No live URL or repo — the client is a local government authority, so deployment stays private.
+      </p>
+    </div>
+  </section>
+
+  <!-- Roles -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// RBAC roles</p>
+      <h2 class="text-2xl font-bold mt-2">Four base roles, standards-scoped access on top</h2>
+      <p class="mt-2 text-ink-600 dark:text-ink-400 max-w-2xl">
+        First login forces a password change before any module route is reachable.
+      </p>
+    </div>
+    <div class="mt-4 grid sm:grid-cols-2 md:grid-cols-4 gap-2 font-mono text-sm">
+      {roles.map((r) => (
+        <div class="px-3 py-2 rounded-lg border border-ink-200 dark:border-ink-800 bg-ink-50/60 dark:bg-ink-900/60">
+          <span class="text-accent">›</span> {r}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Audit modules -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// audit tracking</p>
+      <h2 class="text-2xl font-bold mt-2">Three audit modules, one permission model</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-3 gap-4">
+      {auditModules.map((m, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 80}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{m.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{m.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="container-prose mt-10">
+    <div class="reveal">
+      <p class="section-eyebrow">// core features & decisions</p>
+      <h2 class="text-2xl font-bold mt-2">How it's built</h2>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 gap-4">
+      {features.map((f, i) => (
+        <div class="card reveal" style={`transition-delay:${i * 60}ms`}>
+          <h3 class="font-bold text-ink-900 dark:text-ink-50">{f.title}</h3>
+          <p class="mt-2 text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{f.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-prose mt-14">
+    <div class="flex flex-wrap justify-between gap-3">
+      <a href="/projects/eventilla/" class="btn-ghost">← Previous: Eventilla Platform Migration</a>
+      <a href="/projects/it-service-management/" class="btn-primary">Next: IT Service Management System →</a>
+
+    </div>
+  </section>
+</Base>
